@@ -73,8 +73,14 @@ export default function StudentImpact() {
             Join our experiential learning program and work on real AI and robotics projects that make
             an impact. Get recruited today while building your portfolio.
           </p>
-          <a className="btn btn-primary reveal" href="#contact" style={{ background: "#fff", color: "var(--blue-700)" }}>
-            Apply to theNext.wtf today
+          <a
+            className="btn btn-primary reveal"
+            href="https://www.flolabs.international/internships"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ background: "#fff", color: "var(--blue-700)" }}
+          >
+            Apply to GetRecruitedToday
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14" />
               <path d="M13 6l6 6-6 6" />

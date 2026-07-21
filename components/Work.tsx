@@ -1,73 +1,186 @@
-type Status = { label: string; kind: "live" | "dev" | "soon" };
+import WorkCarousel3D from "@/components/WorkCarousel3D";
+import ProjectCard, { type ProjectCardProps } from "@/components/ProjectCard";
 
-type Project = {
-  name: string;
-  status: Status;
-  kicker: string;
-  title: string;
-  desc: string;
-  tags: string[];
-  year?: string;
-  stats?: { value: number; suffix?: string; label: string }[];
-};
+const CATEGORY = "Design & Development";
 
-const PROJECTS: Project[] = [
+/* Carried-over projects keep their existing stacks; the newly added ones have
+   empty `tags` until their stack lists arrive. */
+const PROJECTS: ProjectCardProps[] = [
   {
-    name: "FloLabs Innovations Group",
+    accent: "#FDE035",
+    pattern: "rays",
+    media: { kind: "icon", name: "sparkle" },
     status: { label: "Live", kind: "live" },
-    kicker: "Corporate Website",
-    title: "FloLabs Innovations Group",
-    desc: "Main company website showcasing AI & robotics research with modern design and professional portfolio presentation.",
-    tags: ["Next.js", "Figma", "Tailwind CSS", "TypeScript", "Responsive Design", "SEO Optimized"],
-    year: "2024",
-  },
-  {
-    name: "RoboCollective.ai",
-    status: { label: "Live", kind: "live" },
-    kicker: "E-commerce Platform",
-    title: "RoboCollective.ai",
-    desc: "Premium robot marketplace with e-commerce functionality, product showcases, and customer testimonials.",
-    tags: ["WordPress", "Canva", "WooCommerce", "Custom CSS", "Product Catalog", "Shopping Cart"],
-    stats: [
-      { value: 50, suffix: "+", label: "Products" },
-      { value: 3, label: "Categories" },
-    ],
-  },
-  {
-    name: "FloLabs International",
-    status: { label: "Live", kind: "live" },
-    kicker: "Educational Website",
-    title: "FloLabs International",
-    desc: "Educational platform for AI & robotics programs with course information and application system.",
-    tags: ["WordPress", "Figma", "Canva", "Custom Plugins", "Course Catalog", "Application System"],
-  },
-  {
-    name: "CAIPO.ai",
-    status: { label: "In Development", kind: "dev" },
-    kicker: "AI Platform",
-    title: "CAIPO.ai",
-    desc: "AI assistant platform landing page with modern design and early access signup functionality.",
-    tags: ["Next.js", "Figma", "Framer Motion", "Tailwind CSS", "Waitlist System", "Interactive Design"],
-  },
-  {
-    name: "MoodChanger.ai",
-    status: { label: "Coming Soon", kind: "soon" },
-    kicker: "AI Platform",
-    title: "MoodChanger.ai",
-    desc: "AI mood management platform with comprehensive brand design and user experience planning.",
+    kicker: "AI Wellbeing Platform",
+    title: "MoodChanger",
+    desc: "An AI-powered platform designed to enhance emotional well-being with personalized insights and practical guidance.",
+    category: CATEGORY,
     tags: ["Canva", "Figma", "Brand Guidelines", "Presentation Design", "Brand Identity", "Pitch Deck"],
   },
   {
-    name: "MoodChanger for Pets",
-    status: { label: "Coming Soon", kind: "soon" },
-    kicker: "Presentation Design",
+    accent: "#9D52EB",
+    pattern: "dots",
+    media: { kind: "image", src: "/assets/caipo-card.webp", alt: "CAIPO wearable device", variant: "product", scale: 1.6 },
+    status: { label: "Live", kind: "live" },
+    kicker: "Wearable AI",
+    title: "CAIPO",
+    desc: "A wearable AI system focused on capturing moments, organizing notes, and improving productivity workflows.",
+    category: CATEGORY,
+    tags: ["Next.js", "Figma", "Framer Motion", "Tailwind CSS", "Waitlist System", "Interactive Design"],
+  },
+  {
+    accent: "#0AA573",
+    pattern: "rays",
+    media: { kind: "icon", name: "plane" },
+    status: { label: "Live", kind: "live" },
+    kicker: "AI Travel Platform",
+    title: "Flo Travel",
+    desc: "AI-powered travel planning for flights, hotels, reservations, and activities in one connected experience.",
+    category: CATEGORY,
+    tags: [],
+  },
+  {
+    accent: "#13A7CB",
+    pattern: "dots",
+    media: { kind: "icon", name: "cap" },
+    status: { label: "Live", kind: "live" },
+    kicker: "Education Initiative",
+    title: "Bootcamp University",
+    desc: "A cooperative education initiative that helps learners move from foundational training to paid, real-world tech project experience.",
+    category: CATEGORY,
+    tags: [],
+  },
+  {
+    accent: "#002868",
+    pattern: "rings",
+    media: { kind: "icon", name: "robot" },
+    status: { label: "Live", kind: "live" },
+    kicker: "Robotics Research Lab",
+    title: "TARRL",
+    desc: "The official portal for FloLabs' Texas Advanced Robotics Research Lab (TARRL).",
+    category: CATEGORY,
+    tags: [],
+  },
+  {
+    accent: "#387CEA",
+    pattern: "dots",
+    media: { kind: "image", src: "/flolabs-logo.png", alt: "FloLabs mark", variant: "logo" },
+    status: { label: "Live", kind: "live" },
+    kicker: "Corporate Platform",
+    title: "FloLabs Innovations Group",
+    desc: "A global platform showcasing FloLabs initiatives, partnerships, and AI/technology innovation.",
+    category: CATEGORY,
+    tags: ["Next.js", "Figma", "Tailwind CSS", "TypeScript", "Responsive Design", "SEO Optimized"],
+  },
+  {
+    accent: "#8B5A2B",
+    pattern: "rings",
+    media: { kind: "image", src: "/assets/pets-card.png", alt: "A cat and dog resting together", variant: "photo" },
+    status: { label: "Live", kind: "live" },
+    kicker: "Pet Wellness Platform",
     title: "MoodChanger for Pets",
-    desc: "Specialized AI health monitoring for pets with custom branding and presentation materials.",
+    desc: "An AI-driven pet wellness platform combining wearables, environment data, and behavior insights.",
+    category: CATEGORY,
     tags: ["Canva", "Figma", "Illustration", "Brand Design", "Custom Graphics", "Pet-focused UI"],
+  },
+  {
+    accent: "#00DBFF",
+    pattern: "rays",
+    media: { kind: "image", src: "/assets/robocollective-card.png", alt: "Humanoid robot", variant: "product" },
+    status: { label: "Live", kind: "live" },
+    kicker: "Robotics Initiative",
+    title: "Humanoid Robots",
+    desc: "A major initiative focused on intelligent systems, human-robot interaction, and robotics commercialization through RoboCollective.",
+    category: CATEGORY,
+    tags: ["WordPress", "Canva", "WooCommerce", "Custom CSS", "Product Catalog", "Shopping Cart"],
+  },
+  {
+    accent: "#1269C7",
+    pattern: "dots",
+    media: { kind: "icon", name: "bulb" },
+    status: { label: "Live", kind: "live" },
+    kicker: "Experiential Institute",
+    title: "Hephaestus International",
+    desc: "An experiential learning institute focused on innovation, education, and advanced technology development.",
+    category: CATEGORY,
+    tags: [],
+  },
+  {
+    accent: "#00349B",
+    pattern: "rings",
+    media: { kind: "icon", name: "globe" },
+    status: { label: "Live", kind: "live" },
+    kicker: "Global Hub",
+    title: "FloLabs International",
+    desc: "A global hub highlighting FloLabs' mission, projects, and collaboration opportunities.",
+    category: CATEGORY,
+    tags: ["WordPress", "Figma", "Canva", "Custom Plugins", "Course Catalog", "Application System"],
+  },
+  {
+    accent: "#AD46FF",
+    pattern: "dots",
+    media: { kind: "icon", name: "chip" },
+    status: { label: "Coming Soon", kind: "soon" },
+    kicker: "AI Initiative",
+    title: "FloBrain",
+    desc: "An AI-native initiative focused on knowledge workflows, intelligent assistants, and practical team productivity systems.",
+    category: CATEGORY,
+    tags: [],
+  },
+  {
+    accent: "#FF6600",
+    pattern: "rays",
+    media: { kind: "icon", name: "network" },
+    status: { label: "Coming Soon", kind: "soon" },
+    kicker: "Cross-Disciplinary Initiative",
+    title: "Connecting the Dots",
+    desc: "A cross-disciplinary initiative connecting ideas, teams, and execution into clearer and more actionable outcomes.",
+    category: CATEGORY,
+    tags: [],
+  },
+  {
+    accent: "#F23D3D",
+    pattern: "dots",
+    media: { kind: "icon", name: "scales" },
+    status: { label: "Live", kind: "live" },
+    kicker: "Legal & Ethics Institute",
+    title: "Legal & Ethics Ventures Institute",
+    desc: "A remote-first, hands-on institute for legal, ethics, and AI venture projects with real-world execution.",
+    category: CATEGORY,
+    tags: [],
+  },
+  {
+    accent: "#2962FF",
+    pattern: "rays",
+    media: { kind: "icon", name: "rocket" },
+    status: { label: "Live", kind: "live" },
+    kicker: "Venture Institute",
+    title: "Space Ventures Institute",
+    desc: "A remote-first experiential venture institute connecting talent to real space economy projects.",
+    category: CATEGORY,
+    tags: [],
+  },
+  {
+    // TODO: no accent supplied for Cosmos Intelligence — placeholder pending confirmation
+    accent: "#5A4FCF",
+    pattern: "rings",
+    media: { kind: "icon", name: "orbit" },
+    status: { label: "Live", kind: "live" },
+    kicker: "Research Initiative",
+    title: "Cosmos Intelligence",
+    desc: "An open research and product initiative using AI to study cosmic-scale structure, signals, and information patterns across public space data.",
+    category: CATEGORY,
+    tags: [],
   },
 ];
 
-const ARSENAL = ["Figma", "Canva Pro", "Next.js", "WordPress", "Tailwind CSS"];
+const ARSENAL = [
+  { name: "Figma", src: "/assets/figma-logo.png" },
+  { name: "Canva Pro", src: "/assets/canva-logo.png" },
+  { name: "Next.js", src: "/assets/next-logo.png" },
+  { name: "WordPress", src: "/assets/wordpress.png" },
+  { name: "Tailwind CSS", src: "/assets/tailwind-logo.png" },
+];
 
 export default function Work() {
   return (
@@ -85,69 +198,24 @@ export default function Work() {
 
       </div>
 
-      <div className="carousel" data-carousel>
-        <div className="car-track">
-          {PROJECTS.map((p) => (
-            <article className="pcard" key={p.name}>
-              <div className="pcard-visual">
-                <span className="pname">{p.name}</span>
-                <span className={`status ${p.status.kind}`}>
-                  <span className="sd" />
-                  {p.status.label}
-                </span>
-              </div>
-              <div className="pcard-body">
-                <span className="pcard-kicker">{p.kicker}</span>
-                <h3 className="pcard-title">{p.title}</h3>
-                <p className="pcard-desc">{p.desc}</p>
-                <span className="tag-label">Design &amp; Development</span>
-                <div className="tags">
-                  {p.tags.map((t) => (
-                    <span className="tag" key={t}>{t}</span>
-                  ))}
-                </div>
-                {(p.year || p.stats) && (
-                  <div className="pcard-foot">
-                    {p.year && <span className="year">{p.year}</span>}
-                    {p.stats?.map((s) => (
-                      <div className="stat" key={s.label}>
-                        <b data-count={s.value} data-suffix={s.suffix}>
-                          {s.value}
-                          {s.suffix ?? ""}
-                        </b>
-                        <span>{s.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </article>
-          ))}
-        </div>
-
-        <div className="car-controls">
-          <button className="car-arrow prev" aria-label="Previous project" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 6l-6 6 6 6" />
-            </svg>
-          </button>
-          <button className="car-arrow next" aria-label="Next project" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 6l6 6-6 6" />
-            </svg>
-          </button>
-        </div>
-      </div>
+      <WorkCarousel3D>
+        {PROJECTS.map((p) => (
+          <ProjectCard key={p.title} {...p} />
+        ))}
+      </WorkCarousel3D>
 
       <div className="wrap">
         <div className="arsenal">
           <h3 className="reveal">Our Design Arsenal</h3>
-          <div className="marquee reveal">
-            <div className="marquee-track">
-              {[...ARSENAL, ...ARSENAL].map((tool, i) => (
-                <span className="chip" key={i}>{tool}</span>
-              ))}
-            </div>
+          <div className="arsenal-logos reveal">
+            {ARSENAL.map((tool) => (
+              <div className="arsenal-item" key={tool.name}>
+                <div className="arsenal-tile">
+                  <img src={tool.src} alt={`${tool.name} logo`} loading="lazy" draggable={false} />
+                </div>
+                <span className="arsenal-name">{tool.name}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

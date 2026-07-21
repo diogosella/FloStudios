@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import RotatingText from "@/components/RotatingText";
 
 type Eco = { icon: ReactNode; title: string; label: string };
 
@@ -42,11 +43,29 @@ const ECOSYSTEM: Eco[] = [
   },
 ];
 
+const NETWORK_NAMES = ECOSYSTEM.map((e) => e.title);
+
 export default function Ecosystem() {
   return (
     <section className="band alt">
       <div className="wrap">
         <div className="sec-head center reveal">
+          <h2 className="section-title eco-rotate-title">
+            <RotatingText
+              texts={NETWORK_NAMES}
+              mainClassName="eco-rotate"
+              splitLevelClassName="eco-rotate-split"
+              staggerFrom="last"
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "-120%" }}
+              staggerDuration={0.012}
+              transition={{ type: "spring", damping: 30, stiffness: 400 }}
+              /* these names are long — the stagger'd exit+enter eats ~1s, so give
+                 each name room to actually rest and be read */
+              rotationInterval={3000}
+            />
+          </h2>
           <p className="lead">
             FloStudios.ai works alongside other innovative platforms in the FloLabs Innovations Group
             network

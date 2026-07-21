@@ -43,7 +43,11 @@ const SERVICES: Service[] = [
 
 export default function Services() {
   return (
-    <section className="band alt" id="services">
+    <section className="band alt has-bg-video" id="services">
+      <video className="section-bg-video" autoPlay muted loop playsInline preload="metadata" poster="/assets/services-bg-poster.webp" aria-hidden="true">
+        <source src="/assets/services-bg.webm" type="video/webm" />
+        <source src="/assets/services-bg.mp4" type="video/mp4" />
+      </video>
       <div className="wrap">
         <div className="sec-head center">
           <h2 className="section-title reveal">

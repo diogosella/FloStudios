@@ -1,82 +1,62 @@
-const TILE_SEQ = [
-  "play", "", "cam", "", "film", "play",
-  "", "cam", "film", "", "play", "",
-  "cam", "", "film", "play", "", "",
-];
+import Lightfall from "@/components/Lightfall";
 
-function Glyph({ kind }: { kind: string }) {
-  if (kind === "play")
-    return (
-      <svg className="gly" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M8 5v14l11-7z" />
-      </svg>
-    );
-  if (kind === "cam")
-    return (
-      <svg className="gly" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
-        <path d="M15 8l5-3v14l-5-3V8z" />
-        <rect x="3" y="6" width="12" height="12" rx="2" />
-      </svg>
-    );
-  if (kind === "film")
-    return (
-      <svg className="gly" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
-        <rect x="3" y="4" width="18" height="16" rx="2" />
-        <path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4" />
-      </svg>
-    );
-  return null;
-}
+// module-level so the array reference stays stable — Lightfall re-creates its
+// WebGL context whenever the `colors` prop identity changes
+const LIGHTFALL_COLORS = ["#bdd6ff", "#00daff", "#03daff"];
 
 export default function Hero() {
   return (
     <header className="hero" id="top">
-      <div className="hero-media" aria-hidden="true">
-        <div className="hero-scene">
-          <div className="tile-wall">
-            {TILE_SEQ.map((kind, i) => (
-              <div className="tile" key={i}>
-                <Glyph kind={kind} />
-              </div>
-            ))}
-          </div>
-          <span className="sweep" />
-          <div className="wave">
-            {Array.from({ length: 48 }).map((_, i) => (
-              <i key={i} style={{ animationDelay: `${(-(i % 12) * 0.09).toFixed(2)}s` }} />
-            ))}
-          </div>
-        </div>
-        <video className="hero-video" id="heroVideo" autoPlay muted loop playsInline preload="auto">
-          <source src="/assets/hero-bg.mp4" type="video/mp4" />
-        </video>
-        <div className="hero-overlay" />
+      <div className="hero-bg" aria-hidden="true">
+        <Lightfall
+          colors={LIGHTFALL_COLORS}
+          backgroundColor="#06B6D4"
+          speed={1}
+          streakCount={1}
+          streakWidth={1}
+          streakLength={1.6}
+          glow={1.5}
+          density={1.4}
+          twinkle={1}
+          zoom={3.6}
+          backgroundGlow={0}
+          opacity={1}
+          mouseInteraction={false}
+          mouseStrength={1.2}
+          mouseRadius={0.25}
+        />
       </div>
+      <div className="hero-scrim" aria-hidden="true" />
 
       <div className="wrap hero-inner">
-        <img className="hero-logo hero-anim d1" src="/flostudios-logo.png" alt="FloStudios.ai" />
-        <h1 className="hero-title hero-anim d2">FloStudios.ai</h1>
-        <p className="hero-sub hero-anim d3">
-          Where AI meets creativity. A learning-focused division of FloLabs Innovations Group,
-          creating AI-enhanced content and experiences for cutting-edge technology education in
-          artificial intelligence, robotics, and emerging tech platforms.
+        <h1 className="hero-title hero-anim d1">
+          <span className="hero-title-thin">Flo</span>Studios
+        </h1>
+        <p className="hero-tagline hero-anim d2">
+          Where AI meets <span className="hero-script">creativity</span>
         </p>
-        <div className="hero-actions hero-anim d4">
+        <div className="hero-actions hero-anim d3">
           <a className="btn btn-primary" href="#contact">
-            Let&apos;s Talk
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14" />
-              <path d="M13 6l6 6-6 6" />
-            </svg>
+            Let&apos;s talk
           </a>
           <a className="btn btn-ghost" href="#work">
-            View Our Work
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M7 17L17 7" />
-              <path d="M8 7h9v9" />
-            </svg>
+            View our work
           </a>
         </div>
+      </div>
+
+      <div className="hero-corner">
+        <img
+          className="hero-mark hero-anim d2"
+          src="/flostudios-logo.png"
+          alt=""
+          aria-hidden="true"
+        />
+        <p className="hero-desc hero-anim d4">
+          A learning-focused division of FloLabs Innovations Group, creating AI-enhanced content and
+          experiences for cutting-edge technology education in artificial intelligence, robotics, and
+          emerging tech platforms.
+        </p>
       </div>
     </header>
   );
