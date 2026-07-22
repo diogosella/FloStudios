@@ -96,11 +96,11 @@ img{max-width:100%;display:block}
 }
 .btn svg{width:16px;height:16px}
 .btn-primary{color:#fff;background:var(--blue)}
-.btn-primary:hover{background:var(--blue-600);transform:translateY(-2px)}
+.btn-primary:hover{background:var(--blue);color:#fff;transform:translateY(-2px)}
 .btn-ghost{color:var(--blue-700);background:var(--surface);border-color:var(--blue-100)}
 .btn-ghost:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-2px)}
 .btn-dark{color:#fff;background:var(--blue)}
-.btn-dark:hover{background:var(--blue-600);transform:translateY(-2px)}
+.btn-dark:hover{background:var(--blue);color:#fff;transform:translateY(-2px)}
 
 /* ---- buttons inside solid-blue sections ---- */
 .sec-blue .btn-primary{background:#fff;color:var(--blue-700)}
@@ -118,7 +118,7 @@ img{max-width:100%;display:block}
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:transparent;border-bottom:1px solid transparent;transition:background .3s,border-color .25s,box-shadow .25s,transform .4s var(--ease)}
 .nav.scrolled{background:var(--surface);border-bottom:1px solid var(--line);box-shadow:0 2px 14px rgba(14,42,56,.05)}
 .nav.hide{transform:translateY(-104%)}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:14px 0}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:14px clamp(14px,2.4vw,28px);max-width:1320px;margin-inline:auto}
 .brand{display:flex;align-items:center;gap:11px;font-family:'Sora';font-weight:700;font-size:17px;color:#fff;transition:color .3s}
 .nav.scrolled .brand{color:var(--ink)}
 .brand .logo{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--blue);flex:none}
@@ -130,10 +130,6 @@ img{max-width:100%;display:block}
 .nav.scrolled .nav-links a{color:var(--body)}
 .nav.scrolled .nav-links a:hover{color:var(--blue-700);background:var(--blue-050)}
 .nav-right{display:flex;align-items:center;gap:12px}
-.nav-right .login{font-size:14px;font-weight:600;color:rgba(255,255,255,.9);padding:9px 8px;transition:color .2s}
-.nav.scrolled .nav-right .login{color:var(--body)}
-.nav-right .login:hover{color:#fff}
-.nav.scrolled .nav-right .login:hover{color:var(--blue)}
 .nav-toggle{display:none;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);color:#fff;width:42px;height:42px;border-radius:12px;cursor:pointer;place-items:center}
 .nav.scrolled .nav-toggle{background:var(--blue-050);border-color:var(--blue-100);color:var(--blue-700)}
 .nav-toggle svg{width:20px;height:20px}
@@ -155,6 +151,7 @@ img{max-width:100%;display:block}
 /* React Bits <Lightfall /> root */
 .lightfall-container{position:relative;width:100%;height:100%;overflow:hidden}
 .hero-bg-img{object-fit:cover;object-position:center}
+.hero-bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
 /* light scrim only — the Lightfall background is already near-black, so this just
    seats the text without hiding the streaks */
 .hero-scrim{position:absolute;inset:0;z-index:1;background:
@@ -322,57 +319,341 @@ img{max-width:100%;display:block}
 .chip{font-size:13px;font-weight:600;color:var(--blue-700);padding:10px 20px;border-radius:var(--radius-pill);background:var(--blue-050);border:1px solid var(--blue-100)}
 
 /* ============================================================
-   SERVICES
+   SERVICES — ScrollStack (React Bits): cards stack + scale on scroll
+   inside a self-contained scroll container. Below the ScrollStack rules
+   is the per-card premium styling — dark surface, big icon, oversized
+   title, muted description, accent divider.
    ============================================================ */
-.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1160px;margin-inline:auto}
-.svc{padding:30px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line);transition:transform .25s var(--ease),border-color .25s,box-shadow .25s}
-.svc:hover{transform:translateY(-5px);border-color:var(--blue-200);box-shadow:var(--shadow)}
-.svc-ico{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;margin-bottom:18px;background:var(--blue);color:#fff}
-.svc-ico svg{width:26px;height:26px}
-.svc h3{font-family:'Sora';font-weight:600;font-size:19px;margin-bottom:10px;color:var(--ink)}
-.svc p{font-size:14px;color:var(--body);line-height:1.6}
+.svc-editorial{max-width:1480px;margin-inline:auto;padding:0 clamp(4px,1.2vw,18px)}
+.svc-head{display:flex;flex-direction:column;gap:14px;max-width:960px;margin:0 0 clamp(28px,3vw,44px)}
+
+/* ── ScrollStack base rules (adapted from React Bits) ─────────── */
+.scroll-stack-scroller{position:relative;width:100%;height:640px;
+  overflow-y:auto;overflow-x:visible;overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;scroll-behavior:smooth;
+  transform:translateZ(0);-webkit-transform:translateZ(0);will-change:scroll-position;
+  scrollbar-width:none}
+.scroll-stack-scroller::-webkit-scrollbar{display:none}
+.scroll-stack-inner{padding:12vh clamp(0px,1vw,16px) 40vh;min-height:100%}
+.scroll-stack-end{width:100%;height:1px}
+
+/* Services uses useWindowScroll=true → the section flows in the document
+   instead of being a 640px scroll-trap. Cards go edge-to-edge and each
+   sits ~100% of the section width; scroll from anywhere drives the stack. */
+.svc-stack.scroll-stack-scroller{height:auto;overflow:visible;
+  will-change:auto;transform:none;overscroll-behavior:auto}
+.svc-stack .scroll-stack-inner{padding:clamp(16px,2.5vh,40px) 0 34vh;min-height:0}
+
+/* ── Premium card styling for each ScrollStackItem ────────────── */
+.svc-card{position:relative;isolation:isolate;color:#fff;
+  background:linear-gradient(160deg,#0f1c28 0%,#080f18 100%);
+  border:1px solid rgba(255,255,255,.08);border-radius:32px;
+  padding:clamp(28px,4vw,56px);
+  display:grid;grid-template-columns:1.35fr minmax(0,1fr);
+  column-gap:clamp(24px,4vw,64px);align-items:center;
+  height:clamp(320px,42vw,440px);
+  box-shadow:0 30px 80px rgba(0,0,0,.42),0 0 0 1px rgba(255,255,255,.03) inset}
+
+/* Left column: body */
+.svc-card-body{display:flex;flex-direction:column;gap:clamp(16px,2vw,26px);min-width:0;padding-left:clamp(16px,2.4vw,40px)}
+.svc-card-eyebrow{display:inline-flex;align-items:center;gap:10px;
+  font-family:'Sora',sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--blue);width:fit-content;
+  font-variant-numeric:tabular-nums}
+.svc-card-eyebrow::before{content:"";width:22px;height:1.5px;background:var(--blue);display:inline-block}
+.svc-card-name{font-family:'Sora',sans-serif;font-weight:700;line-height:1.02;letter-spacing:-.025em;
+  font-size:clamp(28px,4vw,54px);color:#fff;margin:0}
+.svc-card-divider{width:60px;height:2px;background:var(--blue);border-radius:2px;
+  box-shadow:0 0 12px rgba(28,169,225,.6)}
+.svc-card-desc{font-size:clamp(15px,1.15vw,17px);line-height:1.6;color:#9fb0bd;max-width:44ch;margin:0}
+
+/* Right column: giant icon "artwork" */
+.svc-card-mark{position:relative;display:grid;place-items:center;color:var(--blue);
+  min-height:100%}
+.svc-card-mark::before{content:"";position:absolute;inset:12% 8%;border-radius:50%;
+  background:radial-gradient(circle,rgba(28,169,225,.28),transparent 62%);filter:blur(30px);
+  z-index:-1}
+.svc-card-mark svg{width:clamp(120px,14vw,200px);height:auto;
+  filter:drop-shadow(0 10px 40px rgba(28,169,225,.5))}
+
+/* Responsive: stack the card content on narrow widths */
+@media(max-width:820px){
+  .svc-card{grid-template-columns:1fr;height:auto;min-height:clamp(320px,50vw,420px);
+    row-gap:clamp(18px,3vw,28px);padding:clamp(24px,5vw,36px);border-radius:24px}
+  .svc-card-mark{min-height:120px;order:-1}
+  .svc-card-mark svg{width:clamp(84px,20vw,130px)}
+  .svc-card-name{font-size:clamp(24px,6.6vw,36px)}
+  .scroll-stack-scroller{height:560px}
+}
+@media(max-width:520px){
+  .scroll-stack-scroller{height:520px}
+  .scroll-stack-inner{padding:8vh 4px 40vh}
+}
 
 /* ============================================================
-   PODCAST (solid blue band)
+   CONNECTING THE DOTS — poster-style promo
+   Solid ink block. One dominant visual (the logo, unframed).
+   No marquee, no dot grids, no dashed corners, no numbered
+   ladders, no motion. Editorial billing-block typography.
    ============================================================ */
-.podcast-grid{display:grid;grid-template-columns:1fr 1fr;gap:44px;margin-top:44px;align-items:center}
-.pod-card{border-radius:18px;padding:38px;text-align:center;background:var(--surface);border:1px solid rgba(255,255,255,.4);box-shadow:var(--shadow)}
-.pod-mic{width:96px;height:96px;border-radius:50%;margin:6px auto 22px;display:grid;place-items:center;background:var(--blue);color:#fff;position:relative}
-.pod-mic::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:2px solid var(--blue-200);animation:pulse 2.6s ease-out infinite}
-@keyframes pulse{0%{transform:scale(.9);opacity:.7}100%{transform:scale(1.5);opacity:0}}
-.pod-mic svg{width:38px;height:38px}
-/* caution-tape badge — light-blue hazard stripes running the full width, white text */
-.pod-tag{position:relative;display:inline-block;overflow:hidden;
-  font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#fff;
-  margin-bottom:14px;padding:8px 20px;border-radius:5px;
-  background:repeating-linear-gradient(45deg,#0e1a24 0 10px,var(--blue) 10px 20px);
-  border:2px solid #0e1a24;
-  text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.55);
-  box-shadow:0 4px 14px rgba(14,42,56,.18)}
-.pod-card h3{font-family:'Sora';font-weight:700;font-size:26px;margin-bottom:12px;color:var(--ink)}
-.pod-card p{font-size:14px;color:var(--body);max-width:38ch;margin:0 auto 22px}
-.pod-lists{display:flex;flex-direction:column;gap:30px}
-.pod-list h4{font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:16px;color:#fff}
-.pod-list ul{list-style:none;display:flex;flex-direction:column;gap:12px}
-.pod-list li{display:flex;align-items:center;gap:12px;font-size:14.5px;color:#fff}
-.pod-list li .tick{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;flex:none;background:#fff;color:var(--blue)}
-.pod-list li .tick svg{width:14px;height:14px}
-.produced{display:flex;flex-wrap:wrap;gap:10px}
-.produced .chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);color:#fff;padding:9px 16px;font-size:12.5px}
+.ctd-band{
+  --ctd-orange:#FF6600;
+  --ctd-cream:#F5EFE7;
+  --ctd-muted:rgba(245,239,231,.72);
+  --ctd-line:rgba(245,239,231,.14);
+  position:relative;
+  background:#050505;
+  color:var(--ctd-cream);
+  padding:clamp(96px,12vw,160px) 0;
+  overflow:hidden;
+  isolation:isolate;
+}
+/* WebGL FaultyTerminal background + scrim for text readability */
+.ctd-bg{
+  position:absolute;inset:0;z-index:0;
+  pointer-events:none;
+}
+.ctd-bg > .faulty-terminal-container{
+  position:absolute;inset:0;
+}
+.ctd-scrim{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(120% 90% at 30% 45%,rgba(0,0,0,.78) 0%,rgba(0,0,0,.88) 60%,rgba(0,0,0,.94) 100%),
+    linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.35) 40%,rgba(0,0,0,.55) 100%);
+}
+.ctd-wrap{
+  position:relative;z-index:1;
+  max-width:1400px;margin-inline:auto;
+  padding:0 clamp(24px,4vw,56px);
+}
+.ctd-grid{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:clamp(48px,6vw,120px);
+  align-items:center;
+}
+
+/* — Left: logo poster block — */
+.ctd-mark{
+  display:flex;flex-direction:column;align-items:flex-start;gap:28px;
+  min-width:0;
+}
+.ctd-logo{
+  width:min(100%,440px);height:auto;object-fit:contain;
+  display:block;
+}
+.ctd-mark-caption{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  width:min(100%,440px);
+  font-family:'Sora','Inter',sans-serif;
+  font-size:11.5px;font-weight:600;letter-spacing:.34em;
+  text-transform:uppercase;color:var(--ctd-orange);
+}
+.ctd-mark-caption svg{width:16px;height:16px;flex:none}
+
+/* — Right: editorial copy — */
+.ctd-copy{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
+.ctd-kicker{
+  font-family:'Sora','Inter',sans-serif;
+  font-size:11.5px;font-weight:600;letter-spacing:.32em;
+  text-transform:uppercase;color:var(--ctd-orange);
+  margin-bottom:22px;
+}
+.ctd-title{
+  font-family:'Sora',sans-serif;font-weight:800;
+  letter-spacing:-.026em;line-height:1.02;
+  font-size:clamp(36px,4.8vw,60px);
+  color:var(--ctd-cream);
+  margin:0 0 22px;
+}
+.ctd-title em{
+  font-style:italic;font-weight:800;
+  color:var(--ctd-orange);
+}
+.ctd-lead{
+  font-family:'Inter',sans-serif;
+  font-size:clamp(15px,1.1vw,17px);line-height:1.7;
+  color:var(--ctd-muted);
+  max-width:52ch;
+  margin:0 0 30px;
+}
+
+/* Editorial em-dash list — no bullets, no numbers, no icons */
+.ctd-list{
+  list-style:none;margin:0 0 40px;padding:0;
+  display:flex;flex-direction:column;gap:12px;
+  max-width:44ch;
+}
+.ctd-list li{
+  position:relative;
+  padding-left:32px;
+  font-family:'Inter',sans-serif;font-size:15.5px;line-height:1.5;
+  color:var(--ctd-cream);
+}
+.ctd-list li::before{
+  content:"";position:absolute;left:0;top:.7em;
+  width:18px;height:1.5px;background:var(--ctd-orange);
+}
+
+/* CTA uses the standard .btn .btn-primary pill; only the color is
+   swapped to CTD orange within this section (matches site button
+   language exactly — same pill, padding, radius, hover-lift). */
+.ctd-band .btn-primary{
+  background:var(--ctd-orange);
+  color:#0A0A0A;
+}
+.ctd-band .btn-primary:hover{
+  background:var(--ctd-orange);
+  color:#0A0A0A;
+  transform:translateY(-2px);
+}
+
+/* — Responsive — */
+@media(max-width:900px){
+  .ctd-grid{grid-template-columns:1fr;gap:56px}
+  .ctd-logo{width:min(100%,360px)}
+}
+@media(max-width:520px){
+  .ctd-title{font-size:clamp(30px,8vw,40px)}
+}
 
 /* ============================================================
    STUDENT IMPACT
    ============================================================ */
-.impact-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.impact{display:flex;gap:18px;padding:28px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line);transition:transform .25s var(--ease),border-color .25s,box-shadow .25s}
-.impact:hover{transform:translateY(-4px);border-color:var(--blue-200);box-shadow:var(--shadow)}
-.impact-ico{width:54px;height:54px;flex:none;border-radius:14px;display:grid;place-items:center;background:var(--blue-050);border:1px solid var(--blue-100);color:var(--blue)}
-.impact-ico svg{width:26px;height:26px}
-.impact h3{font-family:'Sora';font-weight:600;font-size:19px;margin-bottom:8px;color:var(--ink)}
-.impact p{font-size:13.5px;color:var(--body);line-height:1.55}
-.recruit{margin-top:26px;text-align:center;border-radius:18px;padding:clamp(30px,5vw,54px);background:var(--blue);color:#fff}
-.recruit h3{font-family:'Sora';font-weight:700;font-size:clamp(24px,3.4vw,34px);margin-bottom:14px;color:#fff}
-.recruit p{color:rgba(255,255,255,.9);max-width:64ch;margin:0 auto 26px;font-size:15px}
+/* ============================================================
+   BUILT BY FLEARNERS — editorial project index
+   Asymmetric header with a giant outlined watermark behind the
+   title; each project is a wide row with a numbered index,
+   colored spine, name/description, and a shipping tag.
+   The recruit manifesto sits below with a color-striped top rail.
+   ============================================================ */
+.flearners{position:relative;overflow:hidden}
+.fl-wrap{max-width:1480px;margin-inline:auto;padding-left:clamp(4px,1.2vw,18px);padding-right:clamp(4px,1.2vw,18px)}
+
+/* Header lockup */
+.fl-head{position:relative;display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(24px,4vw,60px);
+  align-items:end;margin-bottom:clamp(28px,4vw,44px);isolation:isolate}
+.fl-title{grid-column:1;line-height:.98}
+.fl-lead{grid-column:2;color:var(--muted);align-self:end;padding-bottom:6px}
+
+/* Project entries — one per row, magazine index style */
+.fl-list{list-style:none;padding:0;margin:0}
+.fl-item{--rowpad:clamp(22px,3vw,36px);
+  position:relative;display:grid;
+  grid-template-columns:4px minmax(0,1fr) auto;
+  align-items:center;gap:clamp(18px,2.8vw,36px);
+  padding:var(--rowpad) clamp(6px,1.6vw,22px);
+  border-bottom:1px solid rgba(255,255,255,.08);isolation:isolate;
+  transition:background-color .45s var(--ease)}
+[data-theme="light"] .fl-item{border-bottom-color:rgba(14,42,56,.09)}
+.fl-item:first-child{border-top:1px solid rgba(255,255,255,.08)}
+[data-theme="light"] .fl-item:first-child{border-top-color:rgba(14,42,56,.09)}
+/* Hover wash — a soft accent-tinted horizontal sweep */
+.fl-item::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(90deg,
+    rgb(from var(--accent) r g b / .10) 0%,
+    rgb(from var(--accent) r g b / 0) 60%);
+  opacity:0;transition:opacity .45s var(--ease)}
+/* Fallback for browsers without relative color syntax */
+@supports not (color: rgb(from red r g b)){
+  .fl-item::before{background:linear-gradient(90deg,var(--accent) 0%,transparent 60%);opacity:0}
+  .fl-item:hover::before{opacity:.10}
+}
+.fl-item:hover::before,.fl-item:focus-within::before{opacity:1}
+
+/* Colored spine — vertically centered within the row */
+.fl-spine{align-self:center;width:3px;height:56px;background:var(--accent);border-radius:2px;
+  transform-origin:50% 50%;transform:scaleY(.6);opacity:.6;
+  transition:transform .55s cubic-bezier(.22,.61,.36,1),opacity .35s var(--ease),
+             box-shadow .45s var(--ease)}
+.fl-item:hover .fl-spine{transform:scaleY(1);opacity:1;
+  box-shadow:0 0 24px rgb(from var(--accent) r g b / .55)}
+@supports not (color: rgb(from red r g b)){
+  .fl-item:hover .fl-spine{box-shadow:0 0 24px var(--accent)}
+}
+
+/* Body: name row + description */
+.fl-body{min-width:0}
+.fl-name-row{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+/* Every card gets the same FloLabs mark, rendered as a CSS mask so the
+   background-color tints it. Idle: neutral ink; hover: the card's accent. */
+.fl-ico{flex:none;width:42px;height:42px;background-color:var(--ink);
+  -webkit-mask:url('/FloLabs_logo.svg') center / contain no-repeat;
+          mask:url('/FloLabs_logo.svg') center / contain no-repeat;
+  transition:background-color .35s var(--ease),
+             transform .5s cubic-bezier(.22,.61,.36,1)}
+.fl-item:hover .fl-ico{background-color:var(--accent);transform:rotate(-8deg) scale(1.05)}
+
+.fl-name{font-family:'Sora',sans-serif;font-weight:700;line-height:1.05;letter-spacing:-.02em;
+  font-size:clamp(20px,2.4vw,30px);color:var(--ink);
+  transition:transform .45s var(--ease)}
+.fl-item:hover .fl-name{transform:translateX(4px)}
+
+.fl-desc{font-size:clamp(13.5px,1.05vw,15px);line-height:1.65;color:var(--body);max-width:58ch}
+
+/* Arrow — hidden until hover, sits in the last column */
+.fl-arrow{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  color:var(--ink);border:1px solid rgba(255,255,255,.14);
+  transform:scale(.7);opacity:0;
+  transition:transform .5s cubic-bezier(.22,.61,.36,1),opacity .35s var(--ease),
+             background-color .35s var(--ease),color .35s var(--ease),border-color .35s var(--ease)}
+[data-theme="light"] .fl-arrow{border-color:rgba(14,42,56,.14)}
+.fl-arrow svg{width:44%;height:44%}
+.fl-item:hover .fl-arrow{transform:scale(1);opacity:1;
+  background:var(--accent);border-color:var(--accent);color:#0e1a24}
+
+/* Stagger the entrance */
+.fl-item{transition-delay:calc(var(--i,0) * 60ms)}
+
+/* ── Recruit manifesto ─────────────────────────────────────────
+   Full-bleed dark card, color-striped top rail, asymmetric split. */
+.fl-recruit{position:relative;margin-top:clamp(46px,6vw,80px);overflow:hidden;
+  border-radius:20px;background:#0a1420;color:#fff;
+  box-shadow:0 30px 80px rgba(0,0,0,.42),0 0 0 1px rgba(255,255,255,.06)}
+.fl-recruit-rail{position:absolute;left:0;right:0;top:0;height:4px;display:grid;grid-auto-flow:column;
+  grid-auto-columns:1fr}
+.fl-recruit-rail span{display:block;transform-origin:0 50%;transform:scaleX(0);
+  animation:flRail 1s .12s cubic-bezier(.22,.61,.36,1) forwards}
+.fl-recruit-rail span:nth-child(2){animation-delay:.22s}
+.fl-recruit-rail span:nth-child(3){animation-delay:.32s}
+.fl-recruit-rail span:nth-child(4){animation-delay:.42s}
+@keyframes flRail{to{transform:scaleX(1)}}
+
+.fl-recruit-inner{display:grid;grid-template-columns:1.4fr auto;gap:clamp(24px,4vw,56px);
+  align-items:end;padding:clamp(34px,5vw,58px)}
+.fl-recruit-copy{max-width:60ch;display:flex;flex-direction:column;gap:14px}
+.fl-recruit-eyebrow{font-family:'Sora',sans-serif;font-size:11.5px;font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.fl-recruit h3{font-family:'Sora',sans-serif;font-weight:800;letter-spacing:-.02em;line-height:1;
+  font-size:clamp(28px,4vw,48px);color:#fff}
+.fl-recruit p{font-size:clamp(14.5px,1.1vw,16px);line-height:1.65;color:rgba(255,255,255,.78);margin:0}
+.fl-recruit-cta{align-self:end;background:#fff;color:var(--blue-700);
+  padding:16px 26px;font-size:14.5px;white-space:nowrap;flex:none;
+  transition:transform .35s var(--ease),box-shadow .35s var(--ease),background .25s}
+.fl-recruit-cta:hover{transform:translateY(-3px);background:var(--blue-050);
+  box-shadow:0 18px 40px rgba(255,255,255,.14)}
+
+/* Soft glow accents inside the recruit card */
+.fl-recruit::before,.fl-recruit::after{content:"";position:absolute;pointer-events:none;
+  filter:blur(70px);opacity:.35}
+.fl-recruit::before{width:420px;height:420px;left:-120px;bottom:-160px;
+  background:radial-gradient(circle,var(--blue) 0%,transparent 60%)}
+.fl-recruit::after{width:340px;height:340px;right:-100px;top:-140px;
+  background:radial-gradient(circle,#9D52EB 0%,transparent 60%)}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media(max-width:900px){
+  .fl-head{grid-template-columns:1fr}
+  .fl-lead{grid-column:1;padding-bottom:0}
+  .fl-item{grid-template-columns:3px minmax(0,1fr);gap:16px}
+  .fl-arrow{display:none}
+  .fl-name-row{flex-wrap:wrap}
+  .fl-recruit-inner{grid-template-columns:1fr;align-items:flex-start;gap:26px}
+  .fl-recruit-cta{align-self:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+  .fl-recruit-rail span{animation:none;transform:scaleX(1)}
+}
 
 /* ============================================================
    ECOSYSTEM
@@ -385,19 +666,68 @@ img{max-width:100%;display:block}
 .text-rotate-element{display:inline-block}
 .text-rotate-space{white-space:pre}
 
-/* the rotating network-name headline */
-.eco-rotate-title{display:flex;justify-content:center;margin-bottom:16px}
-.eco-rotate{justify-content:center;background:var(--blue);color:#fff;
-  border-radius:16px;padding:4px 20px 8px;overflow:hidden;line-height:1.05}
-.eco-rotate-split{overflow:hidden;padding-bottom:6px}
+/* ============================================================
+   ECOSYSTEM — compact editorial masthead strip
+   Sits between two large feature sections, so it stays short
+   and scannable. Rotator becomes a modest headline; the 4
+   platforms are laid out as a single row of hairline-divided
+   lockups. No cards, no grid gutters — just a clean strip.
+   ============================================================ */
+.eco-band{padding-block:clamp(52px,6vw,84px)}
+.eco-wrap{max-width:1200px;margin-inline:auto}
 
-.eco-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:38px}
-.eco{padding:30px 22px;border-radius:var(--radius);text-align:center;background:var(--surface);border:1px solid var(--line);transition:transform .25s var(--ease),border-color .25s,box-shadow .25s}
-.eco:hover{transform:translateY(-5px);border-color:var(--blue-200);box-shadow:var(--shadow)}
-.eco-badge{width:56px;height:56px;margin:0 auto 16px;border-radius:15px;display:grid;place-items:center;background:var(--blue);color:#fff}
-.eco-badge svg{width:28px;height:28px}
-.eco h3{font-family:'Sora';font-weight:600;font-size:16px;margin-bottom:6px;color:var(--ink)}
-.eco span{font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+/* Header — modest rotator + short lead, centered */
+.eco-head{max-width:640px;margin:0 auto clamp(28px,3.5vw,40px);
+  display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.eco-rotate-title{display:inline-flex;justify-content:center;margin:0;line-height:1.1}
+.eco-rotate{justify-content:center;background:transparent;color:var(--blue-700);
+  border-radius:0;padding:0;overflow:hidden;line-height:1.1;
+  font-family:'Sora',sans-serif;font-weight:700;letter-spacing:-.01em;
+  font-size:clamp(20px,2.2vw,26px)}
+.eco-rotate-split{overflow:hidden;padding-bottom:.1em}
+[data-theme="dark"] .eco-rotate{color:#6ecbf2}
+.eco-lead{color:var(--muted);font-size:clamp(14px,1vw,15.5px);max-width:56ch;margin:0}
+
+/* Freestanding byline row — no cells, no borders, no columns.
+   The 4 platforms flow inline, centered, separated by generous
+   whitespace and a single hairline "bullet" line between them
+   that only exists on wide screens. */
+.eco-list{list-style:none;margin:0;padding:0;
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+  column-gap:clamp(28px,4vw,64px);row-gap:24px}
+.eco-item{position:relative;display:inline-flex;align-items:center;gap:12px;
+  padding:6px 0;transition:transform .3s var(--ease)}
+/* subtle inline "·" separator between adjacent items on the same line */
+.eco-item + .eco-item::before{content:"";position:absolute;
+  left:calc(-1 * clamp(14px,2vw,32px));top:50%;
+  width:4px;height:4px;border-radius:50%;
+  background:currentColor;opacity:.22;color:var(--muted);
+  transform:translateY(-50%)}
+.eco-item:hover{transform:translateY(-1px)}
+
+/* Small outline icon — no chip/badge, just a colored mark */
+.eco-item-mark{flex:none;width:26px;height:26px;display:grid;place-items:center;
+  color:var(--blue);transition:color .3s var(--ease),transform .35s var(--ease)}
+.eco-item-mark svg{width:22px;height:22px;stroke-width:1.7}
+.eco-item:hover .eco-item-mark{color:var(--blue-700);transform:rotate(-6deg)}
+[data-theme="dark"] .eco-item:hover .eco-item-mark{color:#6ecbf2}
+
+/* Title + label as a small typographic byline */
+.eco-item-body{display:flex;flex-direction:column;gap:1px;line-height:1.25}
+.eco-item-body h3{font-family:'Sora',sans-serif;font-weight:600;font-size:15px;
+  letter-spacing:-.005em;color:var(--ink);
+  transition:color .3s var(--ease)}
+.eco-item:hover .eco-item-body h3{color:var(--blue-700)}
+[data-theme="dark"] .eco-item:hover .eco-item-body h3{color:#6ecbf2}
+.eco-item-body span{font-size:11px;color:var(--muted);
+  letter-spacing:.09em;text-transform:uppercase}
+
+/* On narrower screens, drop the bullet separators — items wrap onto
+   their own lines and the separators would sit at row-start awkwardly */
+@media(max-width:820px){
+  .eco-list{flex-direction:column;align-items:center;row-gap:20px}
+  .eco-item + .eco-item::before{display:none}
+}
 
 /* ============================================================
    FINAL CTA (solid blue)
@@ -476,20 +806,19 @@ img{max-width:100%;display:block}
   .cards-grid{grid-template-columns:repeat(4,1fr)}
 }
 @media(max-width:1024px){
-  .cards-grid,.svc-grid{grid-template-columns:repeat(2,1fr)}
-  .eco-grid{grid-template-columns:repeat(2,1fr)}
+  .cards-grid{grid-template-columns:repeat(2,1fr)}
   .podcast-grid{grid-template-columns:1fr;gap:34px}
   .footer-grid{grid-template-columns:1fr 1fr;gap:40px}
   /* tablet: shrink the cylinder radius but keep the 3D effect */
   .cyl{--cyl-r:1250px;--card-w:472px;--card-h:516px;perspective:1950px}
 }
 @media(max-width:820px){
-  .nav-links,.nav-right .login{display:none}
+  .nav-links{display:none}
   .nav-toggle{display:grid}
   .hero-title{font-size:clamp(46px,14vw,104px)}
 }
 @media(max-width:640px){
-  .cards-grid,.svc-grid,.impact-grid,.eco-grid{grid-template-columns:1fr}
+  .cards-grid{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr;gap:34px}
   /* mobile: same 3D architecture, smaller radius / card / spacing (never a flat slider) */
   .cyl{--cyl-r:900px;--card-w:338px;--card-h:512px;perspective:1600px}
@@ -512,3 +841,63 @@ img{max-width:100%;display:block}
   .reveal{opacity:1;transform:none;transition:none}
   .hero-anim{opacity:1!important}
 }
+
+/* ============================================================
+   LIGHT MODE — invert the "dark blue card" surfaces so the
+   whole page reads uniformly light. Applies to the three
+   embedded dark cards: Digital Creative Services, Project
+   Cards (Websites & Digital Experiences), and FloLabs recruit.
+   Hero, footer and .sec-blue brand bands stay dark by design.
+   ============================================================ */
+
+/* ── Services (.svc-card) ─────────────────────────────────── */
+[data-theme="light"] .svc-card{
+  color:var(--ink);
+  background:var(--surface);
+  border-color:var(--line);
+  box-shadow:0 24px 60px rgba(14,42,56,.10),0 0 0 1px rgba(14,42,56,.03) inset;
+}
+[data-theme="light"] .svc-card-name{color:var(--ink)}
+[data-theme="light"] .svc-card-desc{color:var(--body)}
+
+/* ── Project cards (.pcard) ───────────────────────────────── */
+[data-theme="light"] .pcard{
+  --ink-dim:var(--body);
+  background:var(--surface);
+  border-color:rgb(var(--ar) var(--ag) var(--ab) / .28);
+  box-shadow:0 20px 46px rgba(14,42,56,.10);
+}
+[data-theme="light"] .pcard:hover{
+  border-color:rgb(var(--ar) var(--ag) var(--ab) / .55);
+  box-shadow:0 32px 72px rgba(14,42,56,.14),0 0 60px rgb(var(--ar) var(--ag) var(--ab) / .22);
+}
+[data-theme="light"] .cyl-card.is-active .pcard{
+  border-color:rgb(var(--ar) var(--ag) var(--ab) / .45);
+  box-shadow:0 26px 60px rgba(14,42,56,.12),0 0 54px rgb(var(--ar) var(--ag) var(--ab) / .2);
+}
+[data-theme="light"] .pcard-top{
+  background:radial-gradient(120% 92% at 24% 26%,#F4FAFD 0%,#FFFFFF 58%,#EAF6FC 100%);
+}
+[data-theme="light"] .pcard-title{color:var(--ink)}
+[data-theme="light"] .pcard-metric b{color:var(--ink)}
+[data-theme="light"] .pcard-metric i{color:var(--muted)}
+
+/* ── FloLabs recruit card (.fl-recruit) ───────────────────── */
+[data-theme="light"] .fl-recruit{
+  color:var(--ink);
+  background:var(--surface);
+  box-shadow:0 24px 60px rgba(14,42,56,.10),0 0 0 1px var(--line);
+}
+[data-theme="light"] .fl-recruit-eyebrow{color:var(--muted)}
+[data-theme="light"] .fl-recruit h3{color:var(--ink)}
+[data-theme="light"] .fl-recruit p{color:var(--body)}
+[data-theme="light"] .fl-recruit-cta{
+  background:var(--blue);color:#fff;
+}
+[data-theme="light"] .fl-recruit-cta:hover{
+  background:var(--blue);color:#fff;
+  box-shadow:0 18px 40px rgba(28,169,225,.28);
+}
+/* soften the internal blur glows against a white surface */
+[data-theme="light"] .fl-recruit::before,
+[data-theme="light"] .fl-recruit::after{opacity:.18}

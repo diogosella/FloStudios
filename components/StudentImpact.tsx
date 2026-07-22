@@ -1,92 +1,105 @@
-import type { ReactNode } from "react";
+import type { CSSProperties } from "react";
 
-type Impact = { icon: ReactNode; title: string; desc: string };
+type Impact = { title: string; desc: string; accent: string };
 
+/* Every card carries the same FloLabs mark (see CSS: .fl-ico masks
+   /FloLabs_logo.svg and tints via background-color on hover). Accents come
+   from the same FloLabs project palette used elsewhere on the site. */
 const IMPACTS: Impact[] = [
   {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-        <rect x="4" y="4" width="16" height="16" rx="4" /><path d="M9 10h.01M15 10h.01M9 15h6" />
-      </svg>
-    ),
     title: "CAIPO.ai",
     desc: "Wearable AI productivity assistant that helps professionals optimize their workflow and manage tasks through intelligent automation and voice commands.",
+    accent: "#9D52EB",
   },
   {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20.8 5.6a5.5 5.5 0 0 0-8.8 1.4A5.5 5.5 0 0 0 3.2 5.6c-2 2-2 5.3 0 7.4L12 21l8.8-8a5.2 5.2 0 0 0 0-7.4z" />
-      </svg>
-    ),
     title: "MoodChanger.ai",
     desc: "AI-powered mood management platform serving people, athletes, and pets with personalized wellness tracking and emotional intelligence insights.",
+    accent: "#FDE035",
   },
   {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17.8 19.2 16 11l3.5-3.5a2.1 2.1 0 0 0-3-3L13 8 4.8 6.2a.5.5 0 0 0-.5.8L8 11l-2 2H4l-1 1 3 2 2 3 1-1v-2l2-2 3.9 3.7a.5.5 0 0 0 .8-.5z" />
-      </svg>
-    ),
     title: "Flo Travel",
     desc: "AI-driven travel planning platform that creates personalized itineraries, recommends destinations, and optimizes travel experiences using machine learning.",
+    accent: "#0AA573",
   },
   {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-        <rect x="5" y="8" width="14" height="12" rx="2" /><path d="M9 8V6a3 3 0 0 1 6 0v2M9 14h.01M15 14h.01M12 2v2" />
-      </svg>
-    ),
     title: "RoboCollective",
     desc: "Revolutionary robot marketplace and dealership franchise platform connecting buyers with the latest robotics technology and automation solutions.",
+    accent: "#00DBFF",
   },
 ];
 
 export default function StudentImpact() {
   return (
-    <section className="band">
-      <div className="wrap">
-        <div className="sec-head center">
-          <h2 className="section-title reveal">
-            Built by <span className="blue-text">Flearners</span>
+    <section className="band flearners">
+      <div className="wrap fl-wrap">
+        {/* Editorial header: asymmetric — title left, lead right, giant watermark behind */}
+        <header className="fl-head">
+          <h2 className="section-title fl-title reveal">
+            From our program, <span className="blue-text">into the world.</span>
           </h2>
-          <p className="lead reveal">
+
+          <p className="lead fl-lead reveal">
             Real-world AI and robotics projects developed through our experiential learning programs.
             These platforms are live products serving real users—built by students, for the future.
           </p>
-        </div>
+        </header>
 
-        <div className="impact-grid">
-          {IMPACTS.map((im) => (
-            <div className="impact reveal" key={im.title}>
-              <div className="impact-ico">{im.icon}</div>
-              <div>
-                <h3>{im.title}</h3>
-                <p>{im.desc}</p>
+        {/* Project entries — editorial index */}
+        <ol className="fl-list">
+          {IMPACTS.map((im, i) => (
+            <li
+              className="fl-item reveal"
+              key={im.title}
+              style={{ ["--i" as string]: i, ["--accent" as string]: im.accent } as CSSProperties}
+            >
+              <span className="fl-spine" aria-hidden="true" />
+              <div className="fl-body">
+                <div className="fl-name-row">
+                  <span className="fl-ico" aria-hidden="true" />
+                  <h3 className="fl-name">{im.title}</h3>
+                </div>
+                <p className="fl-desc">{im.desc}</p>
               </div>
-            </div>
+              <span className="fl-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M7 17L17 7" />
+                  <path d="M9 7h8v8" />
+                </svg>
+              </span>
+            </li>
           ))}
-        </div>
+        </ol>
 
-        <div className="recruit">
-          <h3 className="reveal">Want to build the next big thing?</h3>
-          <p className="reveal">
-            Join our experiential learning program and work on real AI and robotics projects that make
-            an impact. Get recruited today while building your portfolio.
-          </p>
-          <a
-            className="btn btn-primary reveal"
-            href="https://www.flolabs.international/internships"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ background: "#fff", color: "var(--blue-700)" }}
-          >
-            Apply to GetRecruitedToday
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14" />
-              <path d="M13 6l6 6-6 6" />
-            </svg>
-          </a>
-        </div>
+        {/* Recruit manifesto — asymmetric split with a color-striped top rail */}
+        <aside className="fl-recruit reveal">
+          <div className="fl-recruit-rail" aria-hidden="true">
+            {IMPACTS.map((im) => (
+              <span key={im.title} style={{ background: im.accent } as CSSProperties} />
+            ))}
+          </div>
+          <div className="fl-recruit-inner">
+            <div className="fl-recruit-copy">
+              <span className="fl-recruit-eyebrow reveal">Join us</span>
+              <h3 className="reveal">Want to build the next big thing?</h3>
+              <p className="reveal">
+                Join our experiential learning program and work on real AI and robotics projects that make
+                an impact. Get recruited today while building your portfolio.
+              </p>
+            </div>
+            <a
+              className="btn btn-primary reveal fl-recruit-cta"
+              href="https://www.flolabs.international/internships"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Apply to GetRecruitedToday
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14" />
+                <path d="M13 6l6 6-6 6" />
+              </svg>
+            </a>
+          </div>
+        </aside>
       </div>
     </section>
   );

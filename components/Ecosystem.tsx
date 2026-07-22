@@ -1,18 +1,21 @@
 import type { ReactNode } from "react";
 import RotatingText from "@/components/RotatingText";
 
-type Eco = { icon: ReactNode; title: string; label: string };
+type Eco = { icon: ReactNode; title: string; label: string; href: string };
 
 const ECOSYSTEM: Eco[] = [
   {
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
-      </svg>
+      <img
+        className="eco-item-logo"
+        src="/FloLabs_logo.svg"
+        alt=""
+        aria-hidden="true"
+      />
     ),
     title: "FloLabs Innovations Group",
     label: "AI & Robotics R&D",
+    href: "https://www.flolabsinnovations.com/",
   },
   {
     icon: (
@@ -22,6 +25,7 @@ const ECOSYSTEM: Eco[] = [
     ),
     title: "FloLabs International",
     label: "Education Programs",
+    href: "https://www.flolabs.international/",
   },
   {
     icon: (
@@ -31,15 +35,19 @@ const ECOSYSTEM: Eco[] = [
     ),
     title: "Flo Travel",
     label: "AI-Powered Travel",
+    href: "https://www.flomadtravel.com/",
   },
   {
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-        <rect x="4" y="4" width="16" height="16" rx="4" /><path d="M9 10h.01M15 10h.01M9 15h6" />
+        <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z" />
+        <path d="M19 3.5l.7 2 2 .7-2 .7L19 9l-.7-2-2-.7 2-.7z" />
+        <path d="M5 15l.6 1.6 1.6.6-1.6.6L5 19.4l-.6-1.6L2.8 17.2l1.6-.6z" />
       </svg>
     ),
     title: "CAIPO",
     label: "AI Productivity Officer",
+    href: "https://www.caipo.ai/",
   },
 ];
 
@@ -47,9 +55,9 @@ const NETWORK_NAMES = ECOSYSTEM.map((e) => e.title);
 
 export default function Ecosystem() {
   return (
-    <section className="band alt">
-      <div className="wrap">
-        <div className="sec-head center reveal">
+    <section className="band alt eco-band">
+      <div className="wrap eco-wrap">
+        <div className="eco-head reveal">
           <h2 className="section-title eco-rotate-title">
             <RotatingText
               texts={NETWORK_NAMES}
@@ -66,20 +74,33 @@ export default function Ecosystem() {
               rotationInterval={3000}
             />
           </h2>
-          <p className="lead">
+          <p className="lead eco-lead">
             FloStudios.ai works alongside other innovative platforms in the FloLabs Innovations Group
             network
           </p>
         </div>
-        <div className="eco-grid">
+
+        <ul className="eco-list reveal">
           {ECOSYSTEM.map((e) => (
-            <div className="eco reveal" key={e.title}>
-              <div className="eco-badge">{e.icon}</div>
-              <h3>{e.title}</h3>
-              <span>{e.label}</span>
-            </div>
+            <li key={e.title}>
+              <a
+                className="eco-item"
+                href={e.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${e.title} — ${e.label}`}
+              >
+                <span className="eco-item-mark" aria-hidden="true">
+                  {e.icon}
+                </span>
+                <div className="eco-item-body">
+                  <h3>{e.title}</h3>
+                  <span>{e.label}</span>
+                </div>
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

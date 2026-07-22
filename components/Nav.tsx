@@ -17,7 +17,6 @@ export default function Nav() {
         </div>
         <div className="nav-right">
           <ThemeToggle />
-          <a className="login" href="#contact">Login</a>
           <a className="btn btn-dark" href="#contact">
             Let&apos;s Talk
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">

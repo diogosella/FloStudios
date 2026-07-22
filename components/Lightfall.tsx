@@ -290,12 +290,23 @@ export default function Lightfall({
     const resize = () => {
       const rect = container.getBoundingClientRect();
       renderer.setSize(rect.width, rect.height);
+      // OGL's setSize writes fixed pixel values into `canvas.style.width/height`,
+      // which pins the canvas to whatever size the container was at that moment.
+      // Restore CSS to 100% so the canvas always visually fills its container
+      // even if a future resize event is missed (StrictMode remounts, hidden
+      // ancestors, some mobile browsers). The drawing buffer stays exact.
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
       uniforms.iResolution.value = [gl.drawingBufferWidth, gl.drawingBufferHeight, 1];
     };
 
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(container);
+    // Safety net: some browsers (and this app's preview pane) don't fire the
+    // container-scoped ResizeObserver when the viewport changes; window.resize
+    // is a cheap fallback that guarantees the drawing buffer catches up.
+    window.addEventListener("resize", resize);
 
     const onPointerMove = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -341,6 +352,7 @@ export default function Lightfall({
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (mouseInteraction) canvas.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("resize", resize);
       ro.disconnect();
       if (canvas.parentElement === container) {
         container.removeChild(canvas);

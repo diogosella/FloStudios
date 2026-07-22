@@ -1,30 +1,21 @@
-import Lightfall from "@/components/Lightfall";
-
-// module-level so the array reference stays stable — Lightfall re-creates its
-// WebGL context whenever the `colors` prop identity changes
-const LIGHTFALL_COLORS = ["#bdd6ff", "#00daff", "#03daff"];
-
 export default function Hero() {
   return (
     <header className="hero" id="top">
       <div className="hero-bg" aria-hidden="true">
-        <Lightfall
-          colors={LIGHTFALL_COLORS}
-          backgroundColor="#06B6D4"
-          speed={1}
-          streakCount={1}
-          streakWidth={1}
-          streakLength={1.6}
-          glow={1.5}
-          density={1.4}
-          twinkle={1}
-          zoom={3.6}
-          backgroundGlow={0}
-          opacity={1}
-          mouseInteraction={false}
-          mouseStrength={1.2}
-          mouseRadius={0.25}
-        />
+        <video
+          className="hero-bg-video"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/assets/hero-bg-poster.webp"
+          aria-hidden="true"
+        >
+          {/* WebM first so modern browsers pick the smaller file */}
+          <source src="/assets/hero-bg.webm" type="video/webm" />
+          <source src="/assets/hero-bg.mp4" type="video/mp4" />
+        </video>
       </div>
       <div className="hero-scrim" aria-hidden="true" />
 

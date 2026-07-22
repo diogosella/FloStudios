@@ -1,9 +1,12 @@
+"use client";
+
 import type { ReactNode } from "react";
+import ScrollStack, { ScrollStackItem } from "@/components/ScrollStack";
 
 type Service = { icon: ReactNode; title: string; desc: string };
 
 const S = (children: ReactNode) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
     {children}
   </svg>
 );
@@ -48,8 +51,8 @@ export default function Services() {
         <source src="/assets/services-bg.webm" type="video/webm" />
         <source src="/assets/services-bg.mp4" type="video/mp4" />
       </video>
-      <div className="wrap">
-        <div className="sec-head center">
+      <div className="wrap svc-editorial">
+        <header className="svc-head">
           <h2 className="section-title reveal">
             Digital <span className="blue-text">Creative Services</span>
           </h2>
@@ -57,18 +60,36 @@ export default function Services() {
             Professional design and development services powered by industry-standard tools and
             creative expertise.
           </p>
-        </div>
-
-        <div className="svc-grid">
-          {SERVICES.map((s) => (
-            <div className="svc reveal" key={s.title}>
-              <div className="svc-ico">{s.icon}</div>
-              <h3>{s.title}</h3>
-              <p>{s.desc}</p>
-            </div>
-          ))}
-        </div>
+        </header>
       </div>
+
+      {/* ScrollStack is a direct child of <section> so it spans the full section
+          width — bypassing the .wrap.svc-editorial max-width constraint. */}
+      <ScrollStack
+        className="svc-stack"
+        /* Use the page's scroll — no nested "scroll trap". Wheel/touchpad
+           anywhere on the page drives the stack, even when the cursor
+           isn't directly over the cards. */
+        useWindowScroll
+        itemDistance={100}
+        itemStackDistance={30}
+        itemScale={0.03}
+        baseScale={0.88}
+        stackPosition="18%"
+        scaleEndPosition="10%"
+      >
+        {SERVICES.map((s) => (
+          <ScrollStackItem key={s.title} itemClassName="svc-card">
+            <div className="svc-card-body">
+              <h3 className="svc-card-name">{s.title}</h3>
+              <p className="svc-card-desc">{s.desc}</p>
+            </div>
+            <div className="svc-card-mark" aria-hidden="true">
+              {s.icon}
+            </div>
+          </ScrollStackItem>
+        ))}
+      </ScrollStack>
     </section>
   );
 }

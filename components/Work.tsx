@@ -130,7 +130,7 @@ const PROJECTS: ProjectCardProps[] = [
   {
     accent: "#FF6600",
     pattern: "rays",
-    media: { kind: "icon", name: "network" },
+    media: { kind: "image", src: "/ConnectingTheDots_logo.svg", alt: "Connecting the Dots logo", variant: "logo" },
     status: { label: "Coming Soon", kind: "soon" },
     kicker: "Cross-Disciplinary Initiative",
     title: "Connecting the Dots",
