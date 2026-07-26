@@ -171,12 +171,19 @@ vec3 getColor(vec2 p){
 
     float middle = digit(p);
 
+    // 5-sample cross (center + 4 axis-aligned neighbors) instead of the
+    // original 3x3 box (9 samples). Corners contribute little to the visible
+    // bloom given how small off is; dropping them cuts per-pixel shader
+    // cost by ~44%. Bloom multiplier bumped 0.10 -> 0.16 (5*0.16 ~= 9*0.09)
+    // to keep the "on" digit brightness roughly equivalent.
     const float off = 0.002;
-    float sum = digit(p + vec2(-off, -off)) + digit(p + vec2(0.0, -off)) + digit(p + vec2(off, -off)) +
-                digit(p + vec2(-off, 0.0)) + digit(p + vec2(0.0, 0.0)) + digit(p + vec2(off, 0.0)) +
-                digit(p + vec2(-off, off)) + digit(p + vec2(0.0, off)) + digit(p + vec2(off, off));
+    float sum = digit(p + vec2(-off, 0.0))
+              + digit(p + vec2( off, 0.0))
+              + digit(p + vec2(0.0, -off))
+              + digit(p + vec2(0.0,  off))
+              + digit(p + vec2(0.0,  0.0));
 
-    vec3 baseColor = vec3(0.9) * middle + sum * 0.1 * vec3(1.0) * bar;
+    vec3 baseColor = vec3(0.9) * middle + sum * 0.16 * vec3(1.0) * bar;
     return baseColor;
 }
 
@@ -297,6 +304,13 @@ export default function FaultyTerminal({
     const ctn = containerRef.current;
     if (!ctn) return;
 
+    // Skip the entire WebGL pipeline for users who prefer reduced motion —
+    // the fragment shader is animated by definition and the scrim behind it
+    // already communicates the section identity without any motion.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
     const effectiveDpr =
       dpr ?? Math.min(window.devicePixelRatio || 1, 2);
     timeOffsetRef.current = Math.random() * 100;
@@ -360,12 +374,32 @@ export default function FaultyTerminal({
     resizeObserver.observe(ctn);
     resize();
 
-    const update = (t: number) => {
-      rafRef.current = requestAnimationFrame(update);
+    // Only render when the container is in the viewport. The shader is
+    // heavy (fbm + 9-sample digit + optional chromatic aberration); keeping
+    // it looping while scrolled offscreen is the single biggest cause of
+    // the "freezes after 3 sections" symptom on machines without HW accel.
+    let isVisible = true;
 
+    // Cap the shader at ~30 fps. Terminal-noise imagery reads identically
+    // at 30 vs 60 fps, and this halves the per-second cost of what's still
+    // the heaviest single component in the app.
+    const targetFrameMs = 1000 / 30;
+    let lastRenderT = 0;
+
+    const update = (t: number) => {
       if (pageLoadAnimation && loadAnimationStartRef.current === 0) {
         loadAnimationStartRef.current = t;
       }
+
+      if (t - lastRenderT < targetFrameMs) {
+        if (isVisible) {
+          rafRef.current = requestAnimationFrame(update);
+        } else {
+          rafRef.current = 0;
+        }
+        return;
+      }
+      lastRenderT = t;
 
       if (!pause) {
         const elapsed = (t * 0.001 + timeOffsetRef.current) * timeScale;
@@ -396,15 +430,36 @@ export default function FaultyTerminal({
       }
 
       renderer.render({ scene: mesh });
+
+      if (isVisible) {
+        rafRef.current = requestAnimationFrame(update);
+      } else {
+        rafRef.current = 0;
+      }
     };
     rafRef.current = requestAnimationFrame(update);
     ctn.appendChild(gl.canvas);
 
     if (mouseReact) ctn.addEventListener("mousemove", handleMouseMove);
 
+    const visibilityObserver = new IntersectionObserver(
+      (entries) => {
+        const nowVisible = entries[0]?.isIntersecting ?? false;
+        if (nowVisible === isVisible) return;
+        isVisible = nowVisible;
+        if (isVisible && !rafRef.current) {
+          rafRef.current = requestAnimationFrame(update);
+        }
+      },
+      { rootMargin: "200px 0px" }
+    );
+    visibilityObserver.observe(ctn);
+
     return () => {
-      cancelAnimationFrame(rafRef.current);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
       resizeObserver.disconnect();
+      visibilityObserver.disconnect();
       if (mouseReact) ctn.removeEventListener("mousemove", handleMouseMove);
       if (gl.canvas.parentElement === ctn) ctn.removeChild(gl.canvas);
       gl.getExtension("WEBGL_lose_context")?.loseContext();

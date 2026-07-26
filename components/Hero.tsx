@@ -1,21 +1,17 @@
+import BgVideo from "@/components/BgVideo";
+
 export default function Hero() {
   return (
     <header className="hero" id="top">
       <div className="hero-bg" aria-hidden="true">
-        <video
+        <BgVideo
           className="hero-bg-video"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
           poster="/assets/hero-bg-poster.webp"
-          aria-hidden="true"
-        >
-          {/* WebM first so modern browsers pick the smaller file */}
-          <source src="/assets/hero-bg.webm" type="video/webm" />
-          <source src="/assets/hero-bg.mp4" type="video/mp4" />
-        </video>
+          sources={[
+            { src: "/assets/hero-bg.webm", type: "video/webm" },
+            { src: "/assets/hero-bg.mp4", type: "video/mp4" },
+          ]}
+        />
       </div>
       <div className="hero-scrim" aria-hidden="true" />
 
