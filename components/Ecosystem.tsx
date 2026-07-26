@@ -88,7 +88,7 @@ export default function Ecosystem() {
                 href={e.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`${e.title} — ${e.label}`}
+                aria-label={`${e.title}, ${e.label}`}
               >
                 <span className="eco-item-mark" aria-hidden="true">
                   {e.icon}
