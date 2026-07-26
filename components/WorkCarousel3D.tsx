@@ -47,7 +47,6 @@ export default function WorkCarousel3D({ children }: { children: ReactNode }) {
     // emphasis falloff scales with the ring density, so a 6-card and a 16-card
     // ring both keep roughly the same number of cards legible around the front
     const fadeRange = step * 2.4;
-    const blurStart = step * 1.0;
 
     const render = () => {
       ring.style.transform = `translateZ(${-radius}px) rotateY(${st.rotation}deg)`;
@@ -58,11 +57,12 @@ export default function WorkCarousel3D({ children }: { children: ReactNode }) {
         const a = Math.abs(signed(base + st.rotation));
         const scale = Math.max(0.7, 1 - a / 375);
         const opacity = Math.max(0, 1 - a / fadeRange);
-        const blur = a > blurStart ? Math.min((a - blurStart) / (step * 0.8), 3.5) : 0;
+        // No per-card `filter: blur()` — CSS blur on 15 layers is the single
+        // heaviest cost of the carousel on non-hardware-accelerated browsers.
+        // Opacity fade alone reads as depth already.
         const el = els[i];
         el.style.transform = `rotateY(${base}deg) translateZ(${radius}px) scale(${scale.toFixed(3)})`;
         el.style.opacity = opacity.toFixed(3);
-        el.style.filter = blur ? `blur(${blur.toFixed(2)}px)` : "none";
         el.style.pointerEvents = a < 90 ? "auto" : "none";
         if (a < bestAbs) {
           bestAbs = a;
@@ -85,17 +85,22 @@ export default function WorkCarousel3D({ children }: { children: ReactNode }) {
         return;
       }
       if (Math.abs(st.velocity) > 0.02) {
-        // inertia: keep spinning, easing out — never a hard stop
+        // inertia: keep spinning, easing out — never a hard stop.
+        // Damping bumped up (0.94 -> 0.92) so momentum fades sooner
+        // → less overshoot, gentler overall glide.
         st.rotation += st.velocity;
-        st.velocity *= 0.94;
+        st.velocity *= 0.92;
         render();
         st.raf = requestAnimationFrame(loop);
         return;
       }
-      // settle onto the nearest card with a spring
+      // settle onto the nearest card with a spring.
+      // Spring factor lowered (0.12 -> 0.07) so the final glide-in to
+      // the centered card takes longer and reads as a gentle slide
+      // rather than a snap.
       const diff = nearestSnap() - st.rotation;
       if (!reduce && Math.abs(diff) > 0.05) {
-        st.rotation += diff * 0.12;
+        st.rotation += diff * 0.07;
         render();
         st.raf = requestAnimationFrame(loop);
       } else {
@@ -122,9 +127,11 @@ export default function WorkCarousel3D({ children }: { children: ReactNode }) {
       if (!st.dragging) return;
       const dx = e.clientX - st.lastX;
       st.lastX = e.clientX;
-      const delta = dx * 0.22; // degrees per pixel
+      const delta = dx * 0.18; // degrees per pixel (lowered from .22 for calmer drag)
       st.rotation += delta;
-      st.velocity = Math.max(-7, Math.min(7, delta)); // last delta = release momentum
+      // Release momentum capped at ±4 (was ±7) — less runaway spin after
+      // a fast flick; the carousel eases into place instead of overshooting.
+      st.velocity = Math.max(-4, Math.min(4, delta));
     };
     const onUp = () => {
       if (!st.dragging) return;

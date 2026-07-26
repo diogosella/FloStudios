@@ -7,7 +7,6 @@ import {
   type ReactNode,
   type CSSProperties,
 } from "react";
-import Lenis from "lenis";
 
 /**
  * ScrollStack (React Bits) — cards that stack and scale as the user scrolls.
@@ -61,8 +60,8 @@ const ScrollStack = ({
 }: ScrollStackProps) => {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const stackCompletedRef = useRef(false);
-  const animationFrameRef = useRef<number | null>(null);
-  const lenisRef = useRef<Lenis | null>(null);
+  const rafScheduledRef = useRef(false);
+  const inViewRef = useRef(true);
   const cardsRef = useRef<HTMLElement[]>([]);
   const lastTransformsRef = useRef<Map<number, Transform>>(new Map());
   const isUpdatingRef = useRef(false);
@@ -131,6 +130,19 @@ const ScrollStack = ({
 
     const endElementTop = endElement ? getElementOffset(endElement) : 0;
 
+    // Compute the topmost card in the stack (the one currently at
+    // `stackPosition` or above). Used for both the blur logic and
+    // toggling the `.is-active` class so consumers can react to
+    // "which card is in focus" (e.g. play/pause a video on that card).
+    let topCardIndex = 0;
+    for (let j = 0; j < cardsRef.current.length; j++) {
+      const jCardTop = getElementOffset(cardsRef.current[j]);
+      const jTriggerStart = jCardTop - stackPositionPx - itemStackDistance * j;
+      if (scrollTop >= jTriggerStart) {
+        topCardIndex = j;
+      }
+    }
+
     cardsRef.current.forEach((card, i) => {
       if (!card) return;
 
@@ -145,20 +157,16 @@ const ScrollStack = ({
       const scale = 1 - scaleProgress * (1 - targetScale);
       const rotation = rotationAmount ? i * rotationAmount * scaleProgress : 0;
 
+      // Toggle `.is-active` on the current front card
+      const shouldBeActive = i === topCardIndex && scrollTop >= triggerStart;
+      const isActive = card.classList.contains("is-active");
+      if (shouldBeActive && !isActive) card.classList.add("is-active");
+      else if (!shouldBeActive && isActive) card.classList.remove("is-active");
+
       let blur = 0;
-      if (blurAmount) {
-        let topCardIndex = 0;
-        for (let j = 0; j < cardsRef.current.length; j++) {
-          const jCardTop = getElementOffset(cardsRef.current[j]);
-          const jTriggerStart = jCardTop - stackPositionPx - itemStackDistance * j;
-          if (scrollTop >= jTriggerStart) {
-            topCardIndex = j;
-          }
-        }
-        if (i < topCardIndex) {
-          const depthInStack = topCardIndex - i;
-          blur = Math.max(0, depthInStack * blurAmount);
-        }
+      if (blurAmount && i < topCardIndex) {
+        const depthInStack = topCardIndex - i;
+        blur = Math.max(0, depthInStack * blurAmount);
       }
 
       let translateY = 0;
@@ -223,71 +231,17 @@ const ScrollStack = ({
     getElementOffset,
   ]);
 
-  const handleScroll = useCallback(() => {
-    updateCardTransforms();
-  }, [updateCardTransforms]);
-
-  const setupLenis = useCallback(() => {
-    if (useWindowScroll) {
-      const lenis = new Lenis({
-        duration: 1.2,
-        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-        touchMultiplier: 2,
-        infinite: false,
-        wheelMultiplier: 1,
-        lerp: 0.1,
-        syncTouch: true,
-        syncTouchLerp: 0.075,
-      });
-
-      lenis.on("scroll", handleScroll);
-
-      const raf = (time: number) => {
-        lenis.raf(time);
-        animationFrameRef.current = requestAnimationFrame(raf);
-      };
-      animationFrameRef.current = requestAnimationFrame(raf);
-
-      lenisRef.current = lenis;
-      return lenis;
-    }
-
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-
-    const lenis = new Lenis({
-      wrapper: scroller,
-      content: scroller.querySelector(".scroll-stack-inner") as HTMLElement,
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      touchMultiplier: 2,
-      infinite: false,
-      // @ts-expect-error — accepted by lenis but not in its public type
-      gestureOrientationHandler: true,
-      // @ts-expect-error — accepted by lenis but not in its public type
-      normalizeWheel: true,
-      wheelMultiplier: 1,
-      touchInertiaMultiplier: 35,
-      lerp: 0.1,
-      syncTouch: true,
-      syncTouchLerp: 0.075,
-      // @ts-expect-error — accepted by lenis but not in its public type
-      touchInertia: 0.6,
+  // rAF-throttle scroll updates and skip entirely when the stack is off-screen.
+  // Replaces Lenis + its permanent RAF loop — native scroll is faster on
+  // machines without hardware compositing, which is what the site sees most.
+  const scheduleUpdate = useCallback(() => {
+    if (rafScheduledRef.current) return;
+    rafScheduledRef.current = true;
+    requestAnimationFrame(() => {
+      rafScheduledRef.current = false;
+      if (inViewRef.current) updateCardTransforms();
     });
-
-    lenis.on("scroll", handleScroll);
-
-    const raf = (time: number) => {
-      lenis.raf(time);
-      animationFrameRef.current = requestAnimationFrame(raf);
-    };
-    animationFrameRef.current = requestAnimationFrame(raf);
-
-    lenisRef.current = lenis;
-    return lenis;
-  }, [handleScroll, useWindowScroll]);
+  }, [updateCardTransforms]);
 
   useLayoutEffect(() => {
     const scroller = scrollerRef.current;
@@ -306,25 +260,37 @@ const ScrollStack = ({
       if (i < cards.length - 1) {
         card.style.marginBottom = `${itemDistance}px`;
       }
-      card.style.willChange = "transform, filter";
+      // Note: no permanent will-change/perspective — those forced a compositor
+      // layer per card for the whole page lifetime. We rely on `transform`
+      // itself to hint the browser during actual scrolls.
       card.style.transformOrigin = "top center";
-      card.style.backfaceVisibility = "hidden";
-      card.style.transform = "translateZ(0)";
-      (card.style as CSSStyleDeclaration & { webkitTransform: string }).webkitTransform = "translateZ(0)";
-      card.style.perspective = "1000px";
-      (card.style as CSSStyleDeclaration & { webkitPerspective: string }).webkitPerspective = "1000px";
     });
 
-    setupLenis();
-    updateCardTransforms();
+    // Native scroll listener (rAF-throttled) + visibility gate.
+    const scrollTarget: EventTarget = useWindowScroll ? window : scroller;
+    scrollTarget.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate, { passive: true });
+
+    const visibilityTarget = useWindowScroll
+      ? (document.querySelector(".scroll-stack-inner") as HTMLElement | null) ?? scroller
+      : scroller;
+    const visibilityObserver = new IntersectionObserver(
+      (entries) => {
+        const nowInView = entries[0]?.isIntersecting ?? false;
+        inViewRef.current = nowInView;
+        if (nowInView) scheduleUpdate();
+      },
+      { rootMargin: "400px 0px" }
+    );
+    visibilityObserver.observe(visibilityTarget);
+
+    // Initial paint
+    scheduleUpdate();
 
     return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      if (lenisRef.current) {
-        lenisRef.current.destroy();
-      }
+      scrollTarget.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+      visibilityObserver.disconnect();
       stackCompletedRef.current = false;
       cardsRef.current = [];
       transformsCache.clear();
@@ -342,7 +308,7 @@ const ScrollStack = ({
     blurAmount,
     useWindowScroll,
     onStackComplete,
-    setupLenis,
+    scheduleUpdate,
     updateCardTransforms,
   ]);
 

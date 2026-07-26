@@ -35,7 +35,7 @@ export default function NewsletterForm() {
       </button>
       {sent && (
         <p className="footer-news-ok" role="status">
-          Thanks — we&apos;ll be in touch.
+          Thanks, we&apos;ll be in touch.
         </p>
       )}
     </form>

@@ -1,56 +1,140 @@
 "use client";
 
-import type { ReactNode } from "react";
 import ScrollStack, { ScrollStackItem } from "@/components/ScrollStack";
+import BgVideo from "@/components/BgVideo";
+import SvcCardMedia from "@/components/SvcCardMedia";
 
-type Service = { icon: ReactNode; title: string; desc: string };
+/**
+ * Each service card carries a still image (always visible) and an
+ * optional short video (Pexels, free-for-commercial) that only plays
+ * when the card is the front of the ScrollStack. Videos are lazily
+ * loaded (`preload="none"`) so zero video bytes ship on page load.
+ *
+ * Per-card tuning knobs (both accept "%" or keyword values):
+ *   objectPosition: "50% 50%" (default center) | "50% 30%" (favor top)
+ *                   "left center" | "right bottom" etc.
+ *   scale: 1 (default) | 1.15 (zoom in) | 0.9 (zoom out)
+ */
+type Service = {
+  title: string;
+  desc: string;
+  features: string[];
+  image: string;
+  video?: string;
+  alt: string;
+  objectPosition?: string;
+  scale?: number;
+};
 
-const S = (children: ReactNode) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-    {children}
-  </svg>
-);
-
+/* Posters below are literal frame-0 stills of each Pexels video,
+   extracted with ffmpeg and saved under /public/services/. When the
+   card isn't the active one, the poster is what the user sees;
+   when it becomes active the video plays over the same frame, so
+   the swap is visually seamless. */
 const SERVICES: Service[] = [
   {
-    icon: S(<><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></>),
     title: "Web Design & Development",
     desc: "Creating modern, responsive websites that effectively represent your brand and engage visitors.",
+    features: [
+      "User Interface Design",
+      "Brand Integration",
+      "User Experience Strategy",
+      "Interactive Prototyping",
+      "Visual Communication",
+    ],
+    image: "/services/web.jpg",
+    video: "https://videos.pexels.com/video-files/11274341/11274341-sd_960_540_25fps.mp4",
+    alt: "Developer typing code on a dark screen",
+    objectPosition: "50% 50%",
   },
   {
-    icon: S(<><circle cx="13.5" cy="6.5" r="2.5" /><circle cx="17.5" cy="10.5" r="2.5" /><circle cx="8.5" cy="7.5" r="2.5" /><circle cx="6.5" cy="12.5" r="2.5" /><path d="M12 22a10 10 0 1 1 10-10c0 3-2 3-3 3h-4a2 2 0 0 0 0 4c1 0 1 1 0 3" /></>),
     title: "Brand Identity Design",
     desc: "Developing visual identity systems that help your business stand out and connect with customers.",
+    features: [
+      "Logo Systems",
+      "Color & Typography",
+      "Brand Guidelines",
+      "Visual Assets",
+      "Voice & Tone",
+    ],
+    image: "/services/brand.jpg",
+    video: "https://videos.pexels.com/video-files/1350205/1350205-sd_960_540_30fps.mp4",
+    alt: "Designer working at a laptop",
+    objectPosition: "50% 50%",
   },
   {
-    icon: S(<><path d="M15 8h5l-3 4 3 4h-5" /><rect x="2" y="6" width="13" height="12" rx="2" /><path d="M8 10v4M6 12h4" /></>),
     title: "Digital Content Creation",
     desc: "Producing engaging video, audio, and visual content to tell your brand's story across platforms.",
+    features: [
+      "Video Production",
+      "Motion Graphics",
+      "Photography",
+      "Copywriting",
+      "Social Assets",
+    ],
+    image: "/services/content.jpg",
+    video: "https://videos.pexels.com/video-files/26898433/12029155_1920_1080_30fps.mp4",
+    alt: "Videographer adjusting a camera on a tripod",
+    objectPosition: "50% 50%",
   },
   {
-    icon: S(<><path d="M3 3v18h18" /><path d="M7 15l4-4 3 3 5-6" /></>),
     title: "Digital Strategy",
     desc: "Planning and implementing digital solutions that align with your business goals and growth objectives.",
+    features: [
+      "Market Research",
+      "Roadmap Planning",
+      "Analytics Setup",
+      "KPI Framework",
+      "Growth Loops",
+    ],
+    image: "/services/strategy.jpg",
+    video: "https://videos.pexels.com/video-files/7429487/7429487-hd_1366_720_25fps.mp4",
+    alt: "Sticky notes being arranged on a whiteboard",
+    objectPosition: "50% 50%",
   },
   {
-    icon: S(<><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z" /><path d="M9 10h.01M13 10h.01M17 10h.01" /></>),
     title: "Creative Consultation",
     desc: "Providing expert guidance on digital projects, from concept development to final implementation.",
+    features: [
+      "Concept Development",
+      "Design Reviews",
+      "Direction Sessions",
+      "Workshops",
+      "Implementation Guidance",
+    ],
+    image: "/services/consult.jpg",
+    video: "https://videos.pexels.com/video-files/36398129/15435252_1920_1080_60fps.mp4",
+    alt: "Two professionals collaborating over a laptop",
+    objectPosition: "50% 50%",
   },
   {
-    icon: S(<path d="M12 2a3 3 0 0 0-3 3v1H7a2 2 0 0 0-2 2 3 3 0 0 0 0 6 2 2 0 0 0 2 2h2v1a3 3 0 0 0 6 0v-1h2a2 2 0 0 0 2-2 3 3 0 0 0 0-6 2 2 0 0 0-2-2h-2V5a3 3 0 0 0-3-3z" />),
     title: "Ongoing Support",
     desc: "Maintaining and evolving your digital presence with updates, improvements, and new features.",
+    features: [
+      "Content Updates",
+      "Feature Releases",
+      "Performance Monitoring",
+      "Client Training",
+      "Bug Fixes",
+    ],
+    image: "/services/support.jpg",
+    video: "https://videos.pexels.com/video-files/7682763/7682763-sd_960_540_24fps.mp4",
+    alt: "Support professional with a headset providing live client support",
+    objectPosition: "50% 50%",
   },
 ];
 
 export default function Services() {
   return (
     <section className="band alt has-bg-video" id="services">
-      <video className="section-bg-video" autoPlay muted loop playsInline preload="metadata" poster="/assets/services-bg-poster.webp" aria-hidden="true">
-        <source src="/assets/services-bg.webm" type="video/webm" />
-        <source src="/assets/services-bg.mp4" type="video/mp4" />
-      </video>
+      <BgVideo
+        className="section-bg-video"
+        poster="/assets/services-bg-poster.webp"
+        sources={[
+          { src: "/assets/services-bg.webm", type: "video/webm" },
+          { src: "/assets/services-bg.mp4", type: "video/mp4" },
+        ]}
+      />
       <div className="wrap svc-editorial">
         <header className="svc-head">
           <h2 className="section-title reveal">
@@ -82,11 +166,22 @@ export default function Services() {
           <ScrollStackItem key={s.title} itemClassName="svc-card">
             <div className="svc-card-body">
               <h3 className="svc-card-name">{s.title}</h3>
-              <p className="svc-card-desc">{s.desc}</p>
+              <div className="svc-card-details">
+                <p className="svc-card-desc">{s.desc}</p>
+                <ul className="svc-card-features">
+                  {s.features.map((f) => (
+                    <li key={f}>{f}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
-            <div className="svc-card-mark" aria-hidden="true">
-              {s.icon}
-            </div>
+            <SvcCardMedia
+              image={s.image}
+              video={s.video}
+              alt={s.alt}
+              objectPosition={s.objectPosition}
+              scale={s.scale}
+            />
           </ScrollStackItem>
         ))}
       </ScrollStack>

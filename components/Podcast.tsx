@@ -29,6 +29,7 @@ export default function Podcast() {
           mouseStrength={0.5}
           pageLoadAnimation={false}
           brightness={1}
+          dpr={0.5}
         />
         <div className="ctd-scrim" />
       </div>
