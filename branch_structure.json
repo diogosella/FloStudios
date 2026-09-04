@@ -1,0 +1,15 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "google-feature",
+    "main"
+  ],
+  "parent": {
+    "google-feature": "main",
+    "main": null
+  },
+  "order": [
+    "main",
+    "google-feature"
+  ]
+}

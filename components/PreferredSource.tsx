@@ -9,7 +9,7 @@ const PUBLICATION_HOST = "flostudios.ai";
 const DEEPLINK = `https://www.google.com/preferences/source?q=${DOMAIN}`;
 const STORAGE_KEY = "flostudios.preferred-source.dismissed-at";
 const LOCAL_RESET_KEY = "flostudios.preferred-source.localhost-reset";
-const LOCAL_RESET_TOKEN = "publication-host-v1";
+const LOCAL_RESET_TOKEN = "publication-host-v2";
 const DISMISS_MS = 30 * 24 * 60 * 60 * 1000;
 const SHOW_AFTER_MS = 10_000;
 const SHOW_AFTER_SCROLL_PX = 320;
@@ -182,7 +182,7 @@ export function PreferredSourceFooterLink() {
       target="_blank"
       rel="noopener noreferrer"
     >
-      <GoogleG size={16} />
+      <GoogleG size={18} />
       Add as preferred source on Google
     </a>
   );
