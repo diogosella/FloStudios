@@ -7,6 +7,7 @@ import StudentImpact from "@/components/StudentImpact";
 import Ecosystem from "@/components/Ecosystem";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
+import { PreferredSourceChip } from "@/components/PreferredSource";
 import SiteEffects from "@/components/SiteEffects";
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
       <Ecosystem />
       <FinalCTA />
       <Footer />
+      <PreferredSourceChip />
       <SiteEffects />
     </>
   );

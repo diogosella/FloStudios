@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import NewsletterForm from "@/components/NewsletterForm";
+import { PreferredSourceFooterLink } from "@/components/PreferredSource";
 
 type Link = { name: string; href: string; external?: boolean };
 
@@ -146,6 +147,7 @@ export default function Footer() {
                 </a>
               ))}
             </div>
+            <PreferredSourceFooterLink />
           </div>
 
           <FooterLinks title="Navigation" links={NAVIGATION} />

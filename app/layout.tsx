@@ -1,5 +1,5 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   description:
     "Where AI meets creativity. A learning-focused division of FloLabs Innovations Group, creating AI-enhanced content and experiences for cutting-edge technology education in artificial intelligence, robotics, and emerging tech platforms.",
   icons: { icon: "/flostudios-logo.png" },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
